@@ -6,7 +6,7 @@ from datetime import timedelta
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from .const import CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL, DOMAIN
 from .scraper import SyossetFDScraper
@@ -29,12 +29,16 @@ class SyossetCoordinator(DataUpdateCoordinator):
         self.scraper = scraper
 
     async def _async_update_data(self):
-        """Fetch data from Syosset FD website."""
+        """Fetch data from Syosset FD website, retaining last known data on failure."""
         try:
             alarms = await self.hass.async_add_executor_job(self.scraper.fetch_alarms)
-            return {"alarms": alarms}
+            if alarms:
+                return {"alarms": alarms}
+            _LOGGER.warning("Syosset FD fetch returned no alarms, keeping last known data")
         except Exception as err:
-            raise UpdateFailed(f"Error fetching Syosset FD data: {err}") from err
+            _LOGGER.warning("Error fetching Syosset FD data: %s, keeping last known data", err)
+
+        return self.data if self.data is not None else {"alarms": []}
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
