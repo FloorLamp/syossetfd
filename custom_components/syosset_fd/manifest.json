@@ -1,0 +1,16 @@
+{
+  "domain": "syosset_fd",
+  "name": "Syosset Fire Department",
+  "codeowners": [
+    "@yourusername"
+  ],
+  "config_flow": true,
+  "documentation": "https://github.com/yourusername/hass-syosset-fd",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/yourusername/hass-syosset-fd/issues",
+  "requirements": [
+    "beautifulsoup4>=4.9.0"
+  ],
+  "version": "0.1.0",
+  "homeassistant": "2024.1.0"
+}
